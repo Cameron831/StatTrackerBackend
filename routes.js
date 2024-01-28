@@ -8,6 +8,7 @@ router.route("/test")
 router.route("/player/:playerId")
     .get(controller.getPlayerBox)
 
+
 router.use(function(req, res) {
     res.status(404).send({url: req.originalUrl + ' not found'})
 });

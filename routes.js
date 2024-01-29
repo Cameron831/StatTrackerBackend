@@ -2,12 +2,11 @@ const express = require('express')
 const router = express.Router()
 var controller = require('./controllers.js');
   
-router.route("/test")
-    .get(controller.test)
-
-router.route("/player/:playerId")
+router.route("/player/box-score/:playerId")
     .get(controller.getPlayerBox)
 
+router.route("/player/season-average/:playerId")
+    .get(controller.getPlayerSeasonAvg)
 
 router.use(function(req, res) {
     res.status(404).send({url: req.originalUrl + ' not found'})

@@ -1,35 +1,6 @@
 const axios = require('axios').default;
 const playersData = require('./players.json');
 
-/*
-exports.addComment = async function(req, res) {
-    var newComment = new Comment(req.body);
-    try {
-      const savedComment = await newComment.save();
-      res.status(201).json(savedComment);
-    } catch (err) {
-      console.log(err)
-      res.status(500).send({message: 'An error occurred while adding the comment.'});
-    }
-};
-*/
-
-exports.test = async function (req, res) {
-    try {
-        const players = playersData.players
-        const player = players.find(p => p.PLAYER_LAST_NAME.toLowerCase() === 'doncic');
-        if (player) {
-            console.log('Player found:', player);
-        } else {
-            console.log('Player not found');
-        }
-        res.status(200).send({ message: 'Success' });
-      } catch (err) {
-        console.log(err)
-        res.status(500).send({message: 'An error occurred'});
-      }
-}
-
 getCurrentGames = async () => {
   try {
     const response = await axios.get('https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json')
@@ -115,4 +86,26 @@ exports.getPlayerBox = async function (req, res) {
         console.log(error)
         res.status(500).send({message: 'An error occurred'});
     }
+}
+
+exports.getPlayerSeasonAvg = async (req, res) => {
+  try {
+    const playerId = req.params.playerId
+    stats = {}
+  
+    const players = playersData.players
+    const player = players.find(p => p.PERSON_ID == playerId);
+  
+    if(player) {
+      stats = {
+        "PTS": player.PTS,
+        "REB": player.REB,
+        "AST": player.AST,
+      }
+    }
+    
+    res.status(200).send(stats);
+  } catch (error) {
+    res.status(500).send({message: 'An error occurred'});
+  }
 }

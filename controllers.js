@@ -147,7 +147,7 @@ exports.deleteTracking = async (req, res) => {
   try {
     const userId = req.body.userId
     const playerId = req.body.playerId
-    const deletedTracking = await Player.deleteMany({ user: userId, playerId: playerId})
+    const deletedTracking = await Player.deleteOne({ user: userId, player: playerId})
     res.status(200).json(deletedTracking)
   } catch (error) {
     res.status(500).send({message: 'An error occurred while deleting the tracking: ' + error})

@@ -1,5 +1,8 @@
 const axios = require('axios').default;
 const playersData = require('./players.json');
+var ObjectID = require('mongodb').ObjectID
+User = require('./models/user')
+Player = require('./models/player')
 
 getCurrentGames = async () => {
   try {
@@ -108,4 +111,49 @@ exports.getPlayerSeasonAvg = async (req, res) => {
   } catch (error) {
     res.status(500).send({message: 'An error occurred'});
   }
+}
+
+exports.addUser = async (req, res) => {
+  var newUser = new User(req.body)
+  try {
+    const savedUser = await newUser.save()
+    res.status(201).json(savedUser)
+  } catch (error) {
+    res.status(500).send({message: 'An error occurred while adding the user: ' + error})
+  }
+}
+
+exports.getUserTracking = async (req, res) => {
+  try {
+    const userId = req.params._id
+    const players = await Player.find({ user: userId })
+    res.json(players)
+  } catch (error) {
+    res.status(500).send({message: 'An error occurred while getting the user: ' + error})
+  }
+}
+
+exports.addTracking = async (req, res) => {
+  var newTracking = new Player(req.body)
+  try {
+    const savedTracking = await newTracking.save()
+    res.status(201).json(savedTracking)
+  } catch (error) {
+    res.status(500).send({message: 'An error occurred while adding the tracking: ' + error})
+  }
+}
+
+exports.deleteTracking = async (req, res) => {
+  try {
+    const userId = req.body.userId
+    const playerId = req.body.playerId
+    const deletedTracking = await Player.deleteMany({ user: userId, playerId: playerId})
+    res.status(200).json(deletedTracking)
+  } catch (error) {
+    res.status(500).send({message: 'An error occurred while deleting the tracking: ' + error})
+  }
+}
+
+exports.updateTracking = async (req, res) => {
+
 }

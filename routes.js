@@ -8,9 +8,20 @@ router.route("/player/box-score/:playerId")
 router.route("/player/season-average/:playerId")
     .get(controller.getPlayerSeasonAvg)
 
+router.route("/user")
+.post(controller.addUser)
+
+router.route("/user/:_id")
+.get(controller.getUserTracking)
+
+router.route("/user/tracking")
+.post(controller.addTracking)
+.delete(controller.deleteTracking)
+
 router.use(function(req, res) {
     res.status(404).send({url: req.originalUrl + ' not found'})
 });
+
 
 module.exports = router
 

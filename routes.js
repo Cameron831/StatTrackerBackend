@@ -17,6 +17,7 @@ router.route("/user/:_id")
 router.route("/user/tracking")
 .post(controller.addTracking)
 .delete(controller.deleteTracking)
+.put(controller.updateTracking)
 
 router.use(function(req, res) {
     res.status(404).send({url: req.originalUrl + ' not found'})

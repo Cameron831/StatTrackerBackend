@@ -155,5 +155,11 @@ exports.deleteTracking = async (req, res) => {
 }
 
 exports.updateTracking = async (req, res) => {
-
+  try {
+    const filter = {user: req.body.userId, player: req.body.playerId}
+    const player = await Player.findOneAndUpdate(filter, req.body, {new:true})
+    res.status(200).json(player)
+  } catch (error) {
+    res.status(500).send({message: 'An error occurred while updating the tracking: ' + error})
+  }
 }

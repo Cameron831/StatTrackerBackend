@@ -8,6 +8,7 @@ getCurrentGames = async () => {
   try {
     const response = await axios.get('https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json')
     const responseGames = response.data.scoreboard.games
+    //console.log(responseGames)
     let games = []
     responseGames.map(game => {
       games.push(game.gameId)
@@ -23,14 +24,23 @@ getGameId = async (playerId) => {
   const player = players.find(p => p.PERSON_ID == playerId)
   const teamId = player.TEAM_ID
   const games = await getCurrentGames()
-  let gameId = null
+  let gameId = {}
   games.map(game => {
     if(game.homeTeam.teamId == teamId) {
       gameId = {
         gameId: game.gameId,
-        homeGame: true
+        homeGame: true,
+        period: game.period,
+        gameClock: game.gameClock
       }
-    }     
+    } else if(game.awayTeam.teamId == teamId) {
+      gameId = {
+        gameId: game.gameId,
+        homeGame: false,
+        period: game.period,
+        gameClock: game.gameClock
+      }
+    }
   })
   return gameId
 }
@@ -44,6 +54,7 @@ getGameBoxScore = async (game) => {
     } else {
       players = response.data.game.awayTeam.players
     }
+    console.log("players", players)
     return players
   } catch (error) {
     // Check if the error has a response object
@@ -64,7 +75,16 @@ getGameBoxScore = async (game) => {
 
 exports.getPlayerBox = async function (req, res) {
     try {
-        var stats = {}
+        var stats = {
+          "PTS": 0,
+          "REB": 0,
+          "AST": 0,
+          "TPM": 0,
+          "BLK": 0,
+          "STL": 0,
+          "period" : 0,
+          "gameClock" : "00:00"
+        }
         const playerId = req.params.playerId
 
         const game = await getGameId(playerId)
@@ -77,9 +97,11 @@ exports.getPlayerBox = async function (req, res) {
                 "PTS": player.statistics.points,
                 "REB": player.statistics.reboundsTotal,
                 "AST": player.statistics.assists,
-                "3PM": player.statistics.threePointersMade,
+                "TPM": player.statistics.threePointersMade,
                 "BLK": player.statistics.blocks,
-                "STL": player.statistics.steals
+                "STL": player.statistics.steals,
+                "period" : game.period,
+                "gameClock" : game.gameClock
               }
             }
           })
@@ -132,16 +154,20 @@ exports.getUserTracking = async (req, res) => {
     res.status(500).send({message: 'An error occurred while getting the user: ' + error})
   }
 }
-
 exports.addTracking = async (req, res) => {
-  var newTracking = new Player(req.body)
+  var newTracking = new Player(req.body);
   try {
-    const savedTracking = await newTracking.save()
-    res.status(201).json(savedTracking)
+    const savedTracking = await newTracking.save();
+    res.status(201).json(savedTracking);
   } catch (error) {
-    res.status(500).send({message: 'An error occurred while adding the tracking: ' + error})
+    if (error.code === 11000) {
+      res.status(409).send({ message: 'Duplicate tracking data: ' + error }); // 409 Conflict
+    } else {
+      res.status(500).send({ message: 'An error occurred while adding the tracking: ' + error });
+    }
   }
-}
+};
+
 
 exports.deleteTracking = async (req, res) => {
   try {
@@ -156,7 +182,7 @@ exports.deleteTracking = async (req, res) => {
 
 exports.updateTracking = async (req, res) => {
   try {
-    const filter = {user: req.body.userId, player: req.body.playerId}
+    const filter = {user: req.body.user, player: req.body.player}
     const player = await Player.findOneAndUpdate(filter, req.body, {new:true})
     res.status(200).json(player)
   } catch (error) {

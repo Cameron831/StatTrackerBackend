@@ -54,7 +54,7 @@ getGameBoxScore = async (game) => {
     } else {
       players = response.data.game.awayTeam.players
     }
-    console.log("players", players)
+    //console.log("players", players)
     return players
   } catch (error) {
     // Check if the error has a response object
@@ -71,6 +71,31 @@ getGameBoxScore = async (game) => {
         return "Error: No response received. Error details: " + error;
     }
 }
+}
+
+function formatGameClock(clock) {
+  if(clock == '' || clock == null) {
+    return "00:00"
+  }
+    const min = clock.substring(2,4)
+    const sec = clock.substring(5, 7)
+    return min + ":" + sec
+}
+
+function formatDuration(duration) {
+
+
+  // Match minutes and seconds in the duration string
+  const matches = duration.match(/PT(\d+)M(\d+)(?:\.\d+)?S/);
+  if (!matches) {
+      return null;
+  }
+
+  // Extract minutes and seconds from the matches
+  const minutes = matches[1];
+  const seconds = matches[2].padStart(2, '0'); // Ensure two digits for seconds
+
+  return `${minutes}:${seconds}`;
 }
 
 exports.getPlayerBox = async function (req, res) {
@@ -91,6 +116,7 @@ exports.getPlayerBox = async function (req, res) {
         const box = await getGameBoxScore(game)
 
         if(box != null){
+          game.gameClock = formatGameClock(game.gameClock)
           box.map(player => {
             if(player.personId == playerId) {
               stats = {

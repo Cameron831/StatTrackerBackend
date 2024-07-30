@@ -27,9 +27,9 @@ app.use(logRequests);
 var route = require('./routes.js');
 app.use('/', route);
 
-app.listen(PORT, error => {
+app.listen(PORT, '0.0.0.0', error => {
     if (!error)
-        console.log("Server is Successfully Running on Port " + PORT);
+        console.log('Server running on 0.0.0.0:' + PORT);
     else
         console.log("Error occurred, server can't start", error);
 });

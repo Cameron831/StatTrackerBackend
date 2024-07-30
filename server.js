@@ -1,36 +1,35 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-require('dotenv').config()
+const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
-const app = express()
-const PORT = 3000
-const ADDR = "192.168.1.13"
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-//connect mongoose to mongoDB
-mongoose = require('mongoose')
-const uri = process.env.DB_URI
-mongoose.Promise = global.Promise
-mongoose.connect(uri)
+// Connect to MongoDB
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch(err => console.error("MongoDB connection error:", err));
 
-
+// Logging middleware
 function logRequests(req, res, next) {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
     next();
 }
-  
+
 app.use(logRequests);
 
-//add route
-var route = require('./routes.js')
+// Add routes
+var route = require('./routes.js');
 app.use('/', route);
 
-app.listen(PORT, ADDR, (error) =>{ 
-    if(!error) 
-        console.log("Server is Successfully Running On http:/"+ADDR+":"+ PORT) 
-    else 
-        console.log("Error occurred, server can't start", error)
-    } 
-); 
+app.listen(PORT, error => {
+    if (!error)
+        console.log("Server is Successfully Running on Port " + PORT);
+    else
+        console.log("Error occurred, server can't start", error);
+});

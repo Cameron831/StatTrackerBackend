@@ -1,6 +1,7 @@
 const axios = require('axios').default;
 const playersData = require('./players.json');
 var ObjectID = require('mongodb').ObjectID
+const bcrypt = require('bcrypt');
 User = require('./models/user')
 Player = require('./models/player')
 
@@ -168,6 +169,33 @@ exports.addUser = async (req, res) => {
     res.status(201).json(savedUser)
   } catch (error) {
     res.status(500).send({message: 'An error occurred while adding the user: ' + error})
+  }
+}
+
+exports.getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params._id)
+    res.status(200).json(user)
+  } catch (error) {
+    res.status(500).send({message: 'An error occurred while getting the user: ' + error})
+  }
+}
+
+exports.verifyLogin = async (req, res) => {
+  try {
+    const user = await User.findOne({email: req.body.email});
+    if (user) {
+      const passwordMatch = await bcrypt.compare(req.body.password, user.password);
+      if(passwordMatch) {
+        res.status(200).json(user);
+      } else {
+        res.status(500).send({message: 'Login not valid.'});
+      }
+    } else {
+      res.status(404).send({message: 'Email not found.'});
+    }
+  } catch (err) {
+    res.status(500).send({message: 'An error occurred.'});
   }
 }
 

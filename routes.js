@@ -3,15 +3,21 @@ const router = express.Router()
 var controller = require('./controllers.js');
   
 router.route("/player/box-score/:playerId")
-    .get(controller.getPlayerBox)
+.get(controller.getPlayerBox)
 
 router.route("/player/season-average/:playerId")
-    .get(controller.getPlayerSeasonAvg)
+.get(controller.getPlayerSeasonAvg)
 
 router.route("/user")
 .post(controller.addUser)
 
 router.route("/user/:_id")
+.get(controller.getUser)
+
+router.route("/user/login")
+.post(controller.verifyLogin)
+
+router.route("/user/tracking/:_id")
 .get(controller.getUserTracking)
 
 router.route("/user/tracking")
@@ -25,22 +31,3 @@ router.use(function(req, res) {
 
 
 module.exports = router
-
-
-/*
-router.route("")
-    .post(controller.addComment);
-
-router.route("/review/:reviewId")
-    .get(controller.getReviewComments);
-
-router.route("/product/:productId")
-    .get(controller.getProductComments);
-
-router.route("/user/:userId")
-    .get(controller.getUserComments);
-
-router.route("/:_id")
-    .get(controller.getComment)
-    .put(controller.updateComment);
-*/

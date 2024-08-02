@@ -24,10 +24,11 @@ function logRequests(req, res, next) {
     next();
 }
 
-// Read your certificate and key files
-const privateKey = fs.readFileSync('key.pem', 'utf8');
-const certificate = fs.readFileSync('cert.pem', 'utf8');
-const credentials = { key: privateKey, cert: certificate };
+// Load SSL/TLS certificates
+const sslOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/parlazyapi.cameronharris.dev/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/parlazyapi.cameronharris.dev/fullchain.pem')
+};
 
 app.use(logRequests);
 
@@ -38,7 +39,7 @@ app.use('/', route);
 // Create an HTTPS server
 const httpsServer = https.createServer(credentials, app);
 
-// Start the HTTPS server
-httpsServer.listen(3000, () => {
-  console.log('HTTPS Server running on port 3000');
+// Create HTTPS server
+https.createServer(sslOptions, app).listen(port, () => {
+    console.log(`HTTPS server is running at https://parlazyapi.cameronharris.dev:${port}`);
 });

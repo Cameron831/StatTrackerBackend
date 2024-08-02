@@ -1,6 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -21,15 +24,34 @@ function logRequests(req, res, next) {
     next();
 }
 
+// Read your certificate and key files
+const privateKey = fs.readFileSync('key.pem', 'utf8');
+const certificate = fs.readFileSync('cert.pem', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
 app.use(logRequests);
 
 // Add routes
 var route = require('./routes.js');
 app.use('/', route);
 
-app.listen(PORT, '0.0.0.0', error => {
-    if (!error)
-        console.log('Server running on 0.0.0.0:' + PORT);
-    else
-        console.log("Error occurred, server can't start", error);
+// Create an HTTPS server
+const httpsServer = https.createServer(credentials, app);
+
+// Create an HTTP server for redirecting to HTTPS
+const httpApp = express();
+httpApp.use((req, res, next) => {
+  if (req.secure) {
+    return next();
+  }
+  res.redirect(`https://${req.headers.host}${req.url}`);
+});
+const httpServer = http.createServer(httpApp);
+
+httpServer.listen(80, () => {
+  console.log('HTTP Server running on port 80 and redirecting to HTTPS');
+});
+
+httpsServer.listen(443, () => {
+  console.log('HTTPS Server running on port 443');
 });

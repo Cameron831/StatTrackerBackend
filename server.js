@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const https = require('https');
-const http = require('http');
 const fs = require('fs');
 require('dotenv').config();
 
@@ -37,9 +36,6 @@ var route = require('./routes.js');
 app.use('/', route);
 
 // Create an HTTPS server
-const httpsServer = https.createServer(credentials, app);
-
-// Create HTTPS server
-https.createServer(sslOptions, app).listen(port, () => {
-    console.log(`HTTPS server is running at https://parlazyapi.cameronharris.dev:${port}`);
+https.createServer(sslOptions, app).listen(PORT, () => {
+    console.log(`HTTPS server is running at https://parlazyapi.cameronharris.dev:${PORT}`);
 });
